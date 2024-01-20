@@ -1,27 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { Form } from 'react-bootstrap';
+import axios from 'axios';
+
+const apiUrl = "http://localhost:3000";
 
 const AgregarTarea = ({ agregarTarea }) => {
+
+  const [id_usuario , setid_usuario]= useState("")
+
+  useEffect(() => {
+    const Usuario = JSON.parse(localStorage.getItem('Usuario'));
+    setid_usuario(Usuario[0].id_usuario) 
+
+  });
+ 
   const [nuevaTarea, setNuevaTarea] = useState({
     titulo: '',
     contenido: '',
+    fecha: '',
+    grado: ''
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNuevaTarea({
       ...nuevaTarea,
-      [name]: value,
+      [name]: value
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    agregarTarea(nuevaTarea);
-    setNuevaTarea({
-      titulo: '',
-      contenido: '',
-    });
+
+    console.log(id_usuario);
+    
+
+    axios
+      .post(apiUrl + `/tareas/add`, {
+        id_usuario: id_usuario,
+        Titulo: nuevaTarea.titulo,
+        Fecha: nuevaTarea.fecha,
+        Grado: nuevaTarea.grado,
+        Contenido: nuevaTarea.contenido
+      })
+      .then((response) => {
+  
+        agregarTarea(response.data); 
+        setNuevaTarea({
+          titulo: '',
+          contenido: '',
+          fecha: '',
+          grado: ''
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -43,52 +77,56 @@ const AgregarTarea = ({ agregarTarea }) => {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="titulo" className="form-label">
-           Fecha
+          <label htmlFor="fecha" className="form-label">
+            Fecha de entrega:
           </label>
           <input
-            type="text"
+            type="date"
             className="form-control"
-            id="titulo"
-            name="titulo"
-            value={nuevaTarea.titulo}
+            id="fecha"
+            name="fecha"
+            value={nuevaTarea.fecha}
             onChange={handleChange}
             required
           />
         </div>
         <div>
-          <label htmlFor="titulo">
-            Grado de importancia
-          </label>
-        <Form className='mt-3'>
-      {['radio'].map((type) => (
-        <div key={`inline-${type}`} className="mb-3">
-          <Form.Check
-            inline
-            label="Alto"
-            name="group1"
-            type={type}
-            id={`inline-${type}-1`}
-          />
-          <Form.Check
-            inline
-            label="Mediio"
-            name="group1"
-            type={type}
-            id={`inline-${type}-2`}
-          />
-          <Form.Check
-            inline
-            label="Bajo"
-            name="group1"
-            type={type}
-            id={`inline-${type}-3`}
-          />
+          <label htmlFor="grado">Grado de importancia:</label>
+          <Form className="mt-3">
+            {['radio'].map((type) => (
+              <div key={`inline-${type}`} className="mb-3">
+                <Form.Check
+                  inline
+                  label="Alto"
+                  name="grado"
+                  type={type}
+                  value="Alto"
+                  onChange={handleChange}
+                  id={`inline-${type}-1`}
+                />
+                <Form.Check
+                  inline
+                  label="Medio"
+                  name="grado"
+                  type={type}
+                  value="Medio"
+                  onChange={handleChange}
+                  id={`inline-${type}-2`}
+                />
+                <Form.Check
+                  inline
+                  label="Bajo"
+                  name="grado"
+                  type={type}
+                  value="Bajo"
+                  onChange={handleChange}
+                  id={`inline-${type}-3`}
+                />
+              </div>
+            ))}
+          </Form>
         </div>
-      ))}
-    </Form>
-        </div>
-       
+
         <div className="mb-3">
           <label htmlFor="contenido" className="form-label">
             Contenido:

@@ -1,64 +1,90 @@
-import React, { useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Link, NavLink } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import io from 'socket.io-client';
 
-const LoginFormulario = () => {
-  const [formData, setFormData] = useState({
-    usuario: '',
-    password: '',
-  });
+const apiUrl = "http://localhost:3000";
+const socket = io(apiUrl);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
+function Login() {
+  const [user, setUser] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    socket.on('usuarioConectado', () => {
+      Swal.fire({
+        icon: "success",
+        title: "Nuevo usuario conectado",
+        text: "¡Se ha conectado un nuevo usuario!",
+      });
     });
-  };
+  }, []);
 
-  const handleSubmit = (e) => {
+  const iniciarSecion = async (e) => {
     e.preventDefault();
- 
-    console.log('Datos de inicio de sesión:', formData);
+    await axios.get(apiUrl + `/usuario/buscar/${user}&${password}`)
+      .then((result) => {
+        if (
+          result.data.value !== undefined ||
+          result.data.message !== "Usuario no encontrado"
+        ) {
+          localStorage.setItem("Usuario", JSON.stringify(result.data));
+          socket.emit('usuarioConectado');
+          navigate("/inicio");
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "El usuario y/o la contraseña son incorrectas!",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error al obtener usuarios:", error);
+      });
   };
 
   return (
-    <div className="container d-flex justify-content-center mt-5">
-      <div className="col-md-6">
-        <h2 className="text-center mb-4">Inicio de Sesión</h2>
-        <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="usuario">
-            <Form.Label>Usuario:</Form.Label>
-            <Form.Control
-              type="usuario"
-              name="usuario"
-              placeholder="Ingresa tu correo nombre de usuario"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-
-          <Form.Group controlId="password" className='mt-3'>
-            <Form.Label>Contraseña:</Form.Label>
-            <Form.Control
-              type="password"
-              name="password"
-              placeholder="Ingresa tu contraseña"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-
-          <Button variant="primary" type="submit" className="w-100 mt-5" as={Link} to="/inicio">
-          Iniciar Sesión
-          </Button>
-        </Form>
-      </div>
-    </div>
+    <Container>
+      <Row className=" mt-5 align-items-center justify-content-center">
+        <Col md={8} className="d-flex align-items-center justify-content-center">
+          <div className="w-100">
+            <h2 className="text-center mb-4" style={{color:"white"}}>Bienvenido al administrador de tareas</h2>
+            <Form onSubmit={iniciarSecion}>
+              <Form.Group controlId="formUsuario">
+                <Form.Label> <h4>Usuario </h4></Form.Label>
+                <Form.Control
+                  required
+                  value={user}
+                  onChange={(e) => setUser(e.target.value)}
+                  type="text"
+                  placeholder="Ingrese su usuario"
+                />
+              </Form.Group>
+              <Form.Group controlId="formContrasena">
+                <Form.Label className="mt-5"> <h4>Contraseña</h4> </Form.Label>
+                <Form.Control
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type="password"
+                  placeholder="Ingrese su contraseña"
+                />
+              </Form.Group>
+              <div className="d-flex justify-content-center">
+                <Button variant="dark" type="submit" className="mt-5">
+                  Iniciar sesión
+                </Button>
+              </div>
+            </Form>
+          </div>
+        </Col>
+      </Row>
+    </Container>
   );
-};
+}
 
-export default LoginFormulario;
+export default Login;

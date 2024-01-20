@@ -4,31 +4,31 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { IoMdChatboxes } from 'react-icons/io';
 import { AiFillSnippets } from 'react-icons/ai';
+import { IoExit } from "react-icons/io5";
 
 function CollapsibleExample() {
   return (
-    <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
+    <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary mb-5">
       <Container>
         <Navbar.Brand href="/inicio" className="ms-5">
-          Control 1.0
+          Tareas NET
         </Navbar.Brand>
         <Navbar.Toggle />
         <Navbar.Collapse>
           <Nav className="ms-5">
-            <Nav.Link href="/inicio/tareas">
+            <Nav.Link href="/tareas">
               Tareas <AiFillSnippets />
             </Nav.Link>
-            <Nav.Link href="/inicio/chat">
+            <Nav.Link href="/chat">
               Chat <IoMdChatboxes />
             </Nav.Link>
+            <Nav.Link href="/" className="ms-5">
+          Salir <IoExit/>
+        </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
-      <Container className="ms-5">
-        <Navbar.Brand href="/" className="ms-5">
-          Salir
-        </Navbar.Brand>
-      </Container>
+    
     </Navbar>
   );
 }
