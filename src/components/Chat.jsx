@@ -1,34 +1,26 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { IoMdChatboxes, IoMdSend } from "react-icons/io";
-const apiUrl ="http://localhost:3000/";
+const apiUrl = "http://localhost:3000/";
+import "../styles/chat.css"
 
 const Messages = () => {
-  const [boton, setBoton] = useState(false);
-  const [mensages, setMensajes] = useState([]);
-  const [mensage, setMensaje] = useState("");
+  const [mensajes, setMensajes] = useState([]);
+  const [mensaje, setMensaje] = useState("");
   const user = JSON.parse(localStorage.getItem("Usuario"));
   const socket = io(apiUrl);
 
-  const displayBtn = () => {
-    if (boton === true) {
-      setBoton(false);
-    } else {
-      setBoton(true);
-    }
-  };
-
-  const enviarMensage = (e) => {
+  const enviarMensaje = (e) => {
     e.preventDefault();
     const usuario = JSON.parse(localStorage.getItem("Usuario"));
     socket.emit("mensaje", {
-      mensaje: mensage,
+      mensaje: mensaje,
       usuario: usuario.usuario,
-      fecha:obtenerHoraActual()
+      fecha: obtenerHoraActual(),
     });
-    setMensaje("")  
+    setMensaje("");
   };
-  
+
   useEffect(() => {
     socket.on("mensaje", estado);
 
@@ -39,54 +31,47 @@ const Messages = () => {
 
   const estado = (mensaje) => setMensajes((state) => [...state, mensaje]);
 
-   const obtenerHoraActual = () => {
-     const ahora = new Date();
-     const horas = ahora.getHours();
-     const minutos = ahora.getMinutes();
-     const horaFormateada = String(horas).padStart(2, "0");
-     const minutosFormateados = String(minutos).padStart(2, "0");
-     const horaActual = `${horaFormateada}:${minutosFormateados}`;
-     return horaActual
-   };
+  const obtenerHoraActual = () => {
+    const ahora = new Date();
+    const horas = ahora.getHours();
+    const minutos = ahora.getMinutes();
+    const horaFormateada = String(horas).padStart(2, "0");
+    const minutosFormateados = String(minutos).padStart(2, "0");
+    const horaActual = `${horaFormateada}:${minutosFormateados}`;
+    return horaActual;
+  };
 
   return (
-    <div className="box">
-      <button onClick={displayBtn}>
-        <IoMdChatboxes size={45} />
-      </button>
-      {boton === true ? (
-        <div className="chat">
-          <form onSubmit={enviarMensage}>
-            <input
-              placeholder="mensaje"
-              type="text"
-              value={mensage}
-              onChange={(e) => setMensaje(e.target.value)}
-            />
-            <button>
-              {" "}
-              <IoMdSend style={{ cursor: "pointer" }} size={32} />
-            </button>
-          </form>
-          <ul>
-            {Array.isArray(mensages) &&
-              mensages.map((mens, i) => (
-                <>
-                  <li
-                    key={i}
-                    className={
-                      user.usuario === mens.usuario ? "message" : "message2"
-                    }>
-                      {console.log(mens)}
-                    {user.usuario === mens.usuario ? "Tú" : mens.usuario}:&nbsp;
-                    {mens.mensaje}
-                    <p className="hora" >{mens.fecha}</p>
-                  </li>
-                </>
-              ))}
-          </ul>
+    <div className="chat-container">
+      <div className="chat">
+        <div className="header">
+          <IoMdChatboxes size={45} />
+          <h1>Chat</h1>
         </div>
-      ) : null}
+        <ul className="messages">
+          {mensajes.map((mensaje, index) => (
+            <li
+              key={index}
+              className={user.usuario === mensaje.usuario ? "message" : "message2"}
+            >
+              {user.usuario === mensaje.usuario ? "Tú" : mensaje.usuario}:&nbsp;
+              {mensaje.mensaje}
+              <p className="hora">{mensaje.fecha}</p>
+            </li>
+          ))}
+        </ul>
+        <form className="form1" onSubmit={enviarMensaje}>
+          <input
+            placeholder="Escribe un mensaje..."
+            type="text"
+            value={mensaje}
+            onChange={(e) => setMensaje(e.target.value)}
+          />
+          <button>
+            <IoMdSend style={{ cursor: "pointer" }} size={32} />
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

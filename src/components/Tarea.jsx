@@ -1,19 +1,18 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form } from 'react-bootstrap';
 import axios from 'axios';
 
 const apiUrl = "http://localhost:3000";
 
 const AgregarTarea = ({ agregarTarea }) => {
-
-  const [id_usuario , setid_usuario]= useState("")
+  const [id_usuario, setid_usuario] = useState("");
 
   useEffect(() => {
     const Usuario = JSON.parse(localStorage.getItem('Usuario'));
-    setid_usuario(Usuario[0].id_usuario) 
+    setid_usuario(Usuario[0].id_usuario);
+    console.log(Usuario);
+  }, []);
 
-  });
- 
   const [nuevaTarea, setNuevaTarea] = useState({
     titulo: '',
     contenido: '',
@@ -33,7 +32,6 @@ const AgregarTarea = ({ agregarTarea }) => {
     e.preventDefault();
 
     console.log(id_usuario);
-    
 
     axios
       .post(apiUrl + `/tareas/add`, {
@@ -44,8 +42,7 @@ const AgregarTarea = ({ agregarTarea }) => {
         Contenido: nuevaTarea.contenido
       })
       .then((response) => {
-  
-        agregarTarea(response.data); 
+        agregarTarea(response.data);
         setNuevaTarea({
           titulo: '',
           contenido: '',
@@ -59,7 +56,7 @@ const AgregarTarea = ({ agregarTarea }) => {
   };
 
   return (
-    <div className="col-md-3">
+    <div className="col-md-5">
       <h2 className="text-center mb-4">Agregar Tarea</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
@@ -90,43 +87,23 @@ const AgregarTarea = ({ agregarTarea }) => {
             required
           />
         </div>
-        <div>
+        <div className="mb-3">
           <label htmlFor="grado">Grado de importancia:</label>
-          <Form className="mt-3">
-            {['radio'].map((type) => (
-              <div key={`inline-${type}`} className="mb-3">
-                <Form.Check
-                  inline
-                  label="Alto"
-                  name="grado"
-                  type={type}
-                  value="Alto"
-                  onChange={handleChange}
-                  id={`inline-${type}-1`}
-                />
-                <Form.Check
-                  inline
-                  label="Medio"
-                  name="grado"
-                  type={type}
-                  value="Medio"
-                  onChange={handleChange}
-                  id={`inline-${type}-2`}
-                />
-                <Form.Check
-                  inline
-                  label="Bajo"
-                  name="grado"
-                  type={type}
-                  value="Bajo"
-                  onChange={handleChange}
-                  id={`inline-${type}-3`}
-                />
-              </div>
-            ))}
-          </Form>
+          <Form.Control
+            as="select"
+            className="form-control"
+            id="grado"
+            name="grado"
+            value={nuevaTarea.grado}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Seleccionar</option>
+            <option value="Alto">Alto</option>
+            <option value="Medio">Medio</option>
+            <option value="Bajo">Bajo</option>
+          </Form.Control>
         </div>
-
         <div className="mb-3">
           <label htmlFor="contenido" className="form-label">
             Contenido:
