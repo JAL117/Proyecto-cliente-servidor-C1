@@ -8,7 +8,7 @@ import { IoExit } from "react-icons/io5";
 
 function CollapsibleExample() {
   return (
-    <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary mb-5">
+    <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
       <Container>
         <Navbar.Brand href="/inicio" className="ms-5">
           Tareas NET
