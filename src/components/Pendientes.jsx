@@ -9,7 +9,7 @@ const apiUrl = "http://localhost:3000";
 const Pendientes = () => {
   const [tareas, setTareas] = useState([]);
   const [id_usuario, setIdUsuario] = useState("");
-  const [pollingTimeout, setPollingTimeout] = useState(null);
+ 
 
   useEffect(() => {
     const Usuario = JSON.parse(localStorage.getItem("Usuario"));
@@ -19,40 +19,21 @@ const Pendientes = () => {
   useEffect(() => {
     const obtenerTareas = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/tareas/buscar/${id_usuario}`);
+        const response = await axios.get(apiUrl + `/tareas/buscar/${id_usuario}`);
         setTareas(response.data);
       } catch (error) {
-        console.log(error);
-        throw error;
+     
       }
     };
 
-    const longPolling = async () => {
-      let pollingActive = true;
+    obtenerTareas();
 
-      while (pollingActive) {
-        try {
-          await obtenerTareas();
-          await new Promise((resolve) => setTimeout(resolve, 50000));
-        } catch (error) {
-          console.log(error);
-          pollingActive = false;
-        }
-      }
-    };
+    const interval = setInterval(() => {
+      obtenerTareas();
+    }, 1500);
 
-    const startPolling = async () => {
-      await obtenerTareas();
-      const timeoutId = setTimeout(longPolling, 50000);
-      setPollingTimeout(timeoutId);
-    };
-
-    startPolling();
-
-    return () => {
-      clearTimeout(pollingTimeout);
-    };
-  }, [id_usuario, pollingTimeout]);
+    return () => clearInterval(interval);
+  }, [id_usuario]);
 
   const obtenerEstiloGrado = (grado) => {
     switch (grado) {

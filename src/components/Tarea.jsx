@@ -10,10 +10,9 @@ const AgregarTarea = ({ agregarTarea }) => {
 
   useEffect(() => {
     const Usuario = JSON.parse(localStorage.getItem('Usuario'));
-    setid_usuario(Usuario[0].id_usuario) 
-
-  });
- 
+    setid_usuario(Usuario[0].id_usuario);
+  }, []);
+  
   const [nuevaTarea, setNuevaTarea] = useState({
     titulo: '',
     contenido: '',
