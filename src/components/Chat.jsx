@@ -3,7 +3,7 @@ import { Container, Row, Col, Form, Button, ListGroup } from 'react-bootstrap';
 import io from 'socket.io-client';
 
 
-const socket = io('http://localhost:3000'); // Reemplaza con la URL de tu servidor
+const socket = io('http://localhost:3000');
 
 const Chat = () => {
   const [message, setMessage] = useState('');
@@ -18,7 +18,7 @@ const Chat = () => {
   const [selectedRoom, setSelectedRoom] = useState('');
 
   useEffect(() => {
-    // Obtener la lista de salas disponibles
+
     socket.emit('get room list');
     socket.on('room list', (rooms) => {
       setRoomList(rooms);
@@ -31,10 +31,10 @@ const Chat = () => {
 
   useEffect(() => {
     if (selectedRoom) {
-      // Unirse a la sala seleccionada
+
       socket.emit('join room', selectedRoom);
 
-      // Manejar eventos de mensajes recibidos
+
       socket.on('load messages', (loadedMessages) => {
         setMessages(loadedMessages);
       });
@@ -47,7 +47,7 @@ const Chat = () => {
         socket.emit('leave room', selectedRoom);
         socket.off('load messages');
         socket.off('chat message');
-        // Limpiar los mensajes al salir de la sala
+     
         setMessages([]);
       };
     }
@@ -56,11 +56,11 @@ const Chat = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message && selectedRoom) {
-      // Send the message to the server
+   
       socket.emit('chat message', { message, room: selectedRoom });
-      // Add the message to the local messages state
+  
       setMessages((prevMessages) => [...prevMessages, message]);
-      // Clear the message input field
+
       setMessage('');
     }
   };
