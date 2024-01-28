@@ -5,11 +5,11 @@ import axios from "axios";
 const apiUrl = "http://localhost:3000";
 
 const AgregarTarea = ({ agregarTarea }) => {
-  const [grupo, setgrupo] = useState("");
+  const [grupo, setGrupo] = useState("");
 
   useEffect(() => {
     const Usuario = JSON.parse(localStorage.getItem("Usuario"));
-    setgrupo(Usuario[0].grupo);
+    setGrupo(Usuario[0].grupo);
   }, []);
 
   const [nuevaTarea, setNuevaTarea] = useState({
@@ -27,31 +27,28 @@ const AgregarTarea = ({ agregarTarea }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(grupo);
-
-    axios
-      .post(apiUrl + `/tareas/add`, {
+    try {
+      const response = await axios.post(apiUrl + `/tareas/add`, {
         grupo: grupo,
         Titulo: nuevaTarea.titulo,
         Fecha: nuevaTarea.fecha,
         Grado: nuevaTarea.grado,
         Contenido: nuevaTarea.contenido,
-      })
-      .then((response) => {
-        agregarTarea(response.data);
-        setNuevaTarea({
-          titulo: "",
-          contenido: "",
-          fecha: "",
-          grado: "",
-        });
-      })
-      .catch((error) => {
-        console.log(error);
       });
+      
+      agregarTarea(response.data);
+      setNuevaTarea({
+        titulo: "",
+        contenido: "",
+        fecha: "",
+        grado: "",
+      });
+    } catch (error) {
+      console.error("Error al agregar tarea:", error);
+    }
   };
 
   return (

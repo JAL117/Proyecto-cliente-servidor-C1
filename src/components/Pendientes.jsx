@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Button from "react-bootstrap/Button";
-import Swal from "sweetalert2";
-import ListGroup from "react-bootstrap/ListGroup";
+import { Card, Button } from "react-bootstrap";
+import "../styles/pendientes.css"
 
 const apiUrl = "http://localhost:3000";
 
 const Pendientes = () => {
   const [tareas, setTareas] = useState([]);
-  const [grupo, setgrupo] = useState("");
- 
+  const [grupo, setGrupo] = useState("");
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
     const Usuario = JSON.parse(localStorage.getItem("Usuario"));
-    setgrupo(Usuario[0].grupo);
+    setGrupo(Usuario[0].grupo);
+    setUserName(Usuario[0].nombreDeUsuario);
   }, []);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const Pendientes = () => {
         const response = await axios.get(apiUrl + `/tareas/buscar/${grupo}`);
         setTareas(response.data);
       } catch (error) {
-     
+        console.error(error);
       }
     };
 
@@ -48,66 +48,37 @@ const Pendientes = () => {
     }
   };
 
-  const actualizarTarea = (tareaModificada) => {
-    setTareas((tareas) => {
-      return tareas.map((tarea) => {
-        if (tarea.id === tareaModificada.id) {
-          return tareaModificada;
-        }
-        return tarea;
-      });
-    });
-  };
-
-  const editarFechaTarea = async (idTarea) => {
-    const { value: nuevaFecha } = await Swal.fire({
-      title: "Ingrese la nueva fecha de entrega:",
-      input: "date",
-      showCancelButton: true,
-      confirmButtonText: "Guardar",
-      cancelButtonText: "Cancelar",
-      inputValidator: (value) => {
-        if (!value) {
-          return "Debes ingresar una fecha";
-        }
-      },
-    });
-
-    if (nuevaFecha) {
-      try {
-        await axios.put(`${apiUrl}/tareas/editar-fecha/${nuevaFecha}/${idTarea}`);
-        const tareaModificada = tareas.find((tarea) => tarea.id === idTarea);
-        if (tareaModificada) {
-          tareaModificada.Fecha = nuevaFecha;
-          actualizarTarea(tareaModificada);
-        }
-      } catch (error) {
-        console.log(error);
-      }
+  const eliminarTarea = async (id_tarea) => {
+    try {
+      await axios.delete(apiUrl + `/tareas/eliminar/${grupo}`, { data: { id: id_tarea } });
+      // Actualizar la lista de tareas después de eliminar una
+      setTareas(tareas.filter(tarea => tarea.id !== id_tarea));
+    } catch (error) {
+      console.error(error);
     }
   };
 
   return (
     <div className="pendientes-container">
+      <h1 className="text-center">Bienvenido: {userName}</h1>
+      <h3 className="text-center mb-5">Grupo: "{grupo}"</h3>
       <h2 className="text-center mb-4">Tareas Pendientes:</h2>
-      <ListGroup className="d-flex align-items-center justify-content-center">
-        {tareas.map((tarea, index) => (
-          <ListGroup.Item className="mt-3" key={index}>
-            <strong style={{ color: obtenerEstiloGrado(tarea.Grado) }}>
-              {tarea.Titulo}
-              <Button
-                className="ms-5"
-                variant="primary"
-                onClick={() => editarFechaTarea(tarea.id)}
-              >
-                Editar fecha de entrega
+      <div className="grid-container">
+        {tareas.map((tarea) => (
+          <Card key={tarea.id} className="mt-3">
+            <Card.Body>
+              <Card.Title style={{ color: obtenerEstiloGrado(tarea.Grado) }}>
+                {tarea.Titulo}
+              </Card.Title>
+              <Card.Text>{tarea.Contenido}</Card.Text>
+              <Card.Text>Fecha de entrega: {tarea.Fecha}</Card.Text>
+              <Button variant="success" onClick={() => eliminarTarea(tarea.id)}>
+                Realizada
               </Button>
-            </strong>
-            <p>{tarea.Contenido}</p>
-            <p>Fecha de entrega: {tarea.Fecha}</p>
-          </ListGroup.Item>
+            </Card.Body>
+          </Card>
         ))}
-      </ListGroup>
+      </div>
     </div>
   );
 };
