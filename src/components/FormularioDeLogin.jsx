@@ -38,6 +38,58 @@ function Login() {
       });
   };
 
+  const registrarUsuario = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Registrar Usuario',
+      html:
+        '<input id="swal-input1" class="swal2-input" placeholder="Usuario">' +
+        '<input id="swal-input2" class="swal2-input" placeholder="Contraseña">' +
+        '<select id="swal-input3" class="swal2-select">' +
+        '<option value="A">Grupo A</option>' +
+        '<option value="B">Grupo B</option>' +
+        '<option value="C">Grupo C</option>' +
+        '</select>',
+      focusConfirm: false,
+      preConfirm: () => {
+        return [
+          document.getElementById('swal-input1').value,
+          document.getElementById('swal-input2').value,
+          document.getElementById('swal-input3').value
+        ];
+      }
+    });
+
+    if (formValues) {
+      const [newUser, newPassword, newGrupo] = formValues;
+      const newId = generateId(); // Generar un ID aleatorio
+      axios.post(apiUrl + '/usuario/add', {
+        id_usuario: newId,
+        nombreDeUsuario: newUser,
+        contrasena: newPassword,
+        grupo: newGrupo
+      })
+      .then((response) => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Usuario registrado',
+          text: 'El usuario ha sido registrado exitosamente!'
+        });
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Ha ocurrido un error al registrar el usuario.'
+        });
+      });
+    }
+  };
+
+  const generateId = () => {
+    return Math.floor(Math.random() * 1000000); // Genera un número entero aleatorio
+  };
+  
+
   useEffect(() => {
     socket.on('connect', () => {
       socket.emit('usuarioConectado', grupo);
@@ -85,6 +137,9 @@ function Login() {
                 </Button>
               </div>
             </Form>
+            <div className="d-flex justify-content-center mt-3">
+              <Button variant="primary" onClick={registrarUsuario}>Registrar Usuario</Button>
+            </div>
           </div>
         </Col>
       </Row>
