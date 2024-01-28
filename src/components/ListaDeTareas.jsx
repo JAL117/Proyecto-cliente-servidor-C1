@@ -6,16 +6,16 @@ const apiUrl = "http://localhost:3000";
 
 const Tareas = () => {
   const [tareas, setTareas] = useState([]);
-  const [id_usuario, setid_usuario] = useState("");
+  const [grupo, setgrupo] = useState("");
 
   useEffect(() => {
     const Usuario = JSON.parse(localStorage.getItem('Usuario'));
-    setid_usuario(Usuario[0].id_usuario);
+    setgrupo(Usuario[0].grupo);
   }, []);
 
   const obtenerTareas = async () => {
     try {
-      const response = await axios.get(apiUrl + `/tareas/buscar/long-polling/${id_usuario}`);
+      const response = await axios.get(apiUrl + `/tareas/buscar/${grupo}`);
       setTareas(response.data);
     } catch (error) {
       console.log(error);
@@ -24,7 +24,29 @@ const Tareas = () => {
 
   useEffect(() => {
     obtenerTareas();
-  }, [id_usuario]);
+  }, [grupo]);
+
+  const longPolling = async () => {
+    try {
+      const response = await axios.get(apiUrl + `/tareas/long-polling?idUltimaTarea=${tareas.length > 0 ? tareas[tareas.length - 1].id : 0}`);
+      
+      if (response.data.length > 0) {
+        setTareas(prevTareas => [...prevTareas, ...response.data]);
+      }
+
+      longPolling();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    longPolling();
+
+    return () => {
+      // Limpiar cualquier acción necesaria al desmontar el componente
+    };
+  }, []); // No necesitamos dependencias aquí
 
   const obtenerEstiloGrado = (grado) => {
     switch (grado) {
@@ -41,7 +63,8 @@ const Tareas = () => {
 
   const eliminarTarea = async (id_tarea) => {
     try {
-      await axios.delete(apiUrl + `/tareas/eliminar/${id_usuario}`, { data: { id: id_tarea } });
+      await axios.delete(apiUrl + `/tareas/eliminar/${grupo}`, { data: { id: id_tarea } });
+      // Al eliminar una tarea, volvemos a obtener todas las tareas
       obtenerTareas();
     } catch (error) {
       console.log(error);

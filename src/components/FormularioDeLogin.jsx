@@ -11,19 +11,10 @@ const socket = io(apiUrl);
 function Login() {
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
+  const [grupo, setGrupo] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    socket.on('usuarioConectado', () => {
-      Swal.fire({
-        icon: "success",
-        title: "Nuevo usuario conectado",
-        text: "¡Se ha conectado un nuevo usuario!",
-      });
-    });
-  }, []);
-
-  const iniciarSecion = async (e) => {
+  const iniciarSesion = async (e) => {
     e.preventDefault();
     await axios.get(apiUrl + `/usuario/buscar/${user}&${password}`)
       .then((result) => {
@@ -32,7 +23,7 @@ function Login() {
           result.data.message !== "Usuario no encontrado"
         ) {
           localStorage.setItem("Usuario", JSON.stringify(result.data));
-          socket.emit('usuarioConectado');
+          setGrupo(result.data[0].grupo); // Actualizar el grupo después del inicio de sesión
           navigate("/inicio");
         } else {
           Swal.fire({
@@ -47,13 +38,27 @@ function Login() {
       });
   };
 
+  useEffect(() => {
+    socket.on('connect', () => {
+      socket.emit('usuarioConectado', grupo);
+    });
+
+    socket.on('usuarioConectado', () => {
+      Swal.fire({
+        icon: "success",
+        title: "Nuevo usuario conectado",
+        text: "¡Se ha conectado un nuevo usuario!",
+      });
+    });
+  }, [grupo]);
+
   return (
     <Container>
       <Row className=" mt-5 align-items-center justify-content-center">
         <Col md={8} className="d-flex align-items-center justify-content-center">
           <div className="w-100">
             <h2 className="text-center mb-4" style={{color:"white"}}>Bienvenido al administrador de tareas</h2>
-            <Form onSubmit={iniciarSecion}>
+            <Form onSubmit={iniciarSesion}>
               <Form.Group controlId="formUsuario">
                 <Form.Label> <h4>Usuario </h4></Form.Label>
                 <Form.Control

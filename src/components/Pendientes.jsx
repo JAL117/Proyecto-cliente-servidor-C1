@@ -8,18 +8,18 @@ const apiUrl = "http://localhost:3000";
 
 const Pendientes = () => {
   const [tareas, setTareas] = useState([]);
-  const [id_usuario, setIdUsuario] = useState("");
+  const [grupo, setgrupo] = useState("");
  
 
   useEffect(() => {
     const Usuario = JSON.parse(localStorage.getItem("Usuario"));
-    setIdUsuario(Usuario[0].id_usuario);
+    setgrupo(Usuario[0].grupo);
   }, []);
 
   useEffect(() => {
     const obtenerTareas = async () => {
       try {
-        const response = await axios.get(apiUrl + `/tareas/buscar/${id_usuario}`);
+        const response = await axios.get(apiUrl + `/tareas/buscar/${grupo}`);
         setTareas(response.data);
       } catch (error) {
      
@@ -30,10 +30,10 @@ const Pendientes = () => {
 
     const interval = setInterval(() => {
       obtenerTareas();
-    }, 1500);
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, [id_usuario]);
+  }, [grupo]);
 
   const obtenerEstiloGrado = (grado) => {
     switch (grado) {

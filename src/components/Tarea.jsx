@@ -1,55 +1,52 @@
-import React, { useState , useEffect } from 'react';
-import { Form } from 'react-bootstrap';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Form } from "react-bootstrap";
+import axios from "axios";
 
 const apiUrl = "http://localhost:3000";
 
 const AgregarTarea = ({ agregarTarea }) => {
-
-  const [id_usuario , setid_usuario]= useState("")
+  const [grupo, setgrupo] = useState("");
 
   useEffect(() => {
-    const Usuario = JSON.parse(localStorage.getItem('Usuario'));
-    setid_usuario(Usuario[0].id_usuario);
+    const Usuario = JSON.parse(localStorage.getItem("Usuario"));
+    setgrupo(Usuario[0].grupo);
   }, []);
-  
+
   const [nuevaTarea, setNuevaTarea] = useState({
-    titulo: '',
-    contenido: '',
-    fecha: '',
-    grado: ''
+    titulo: "",
+    contenido: "",
+    fecha: "",
+    grado: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNuevaTarea({
       ...nuevaTarea,
-      [name]: value
+      [name]: value,
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log(id_usuario);
-    
+    console.log(grupo);
 
     axios
       .post(apiUrl + `/tareas/add`, {
-        id_usuario: id_usuario,
+        grupo: grupo,
         Titulo: nuevaTarea.titulo,
         Fecha: nuevaTarea.fecha,
         Grado: nuevaTarea.grado,
-        Contenido: nuevaTarea.contenido
+        Contenido: nuevaTarea.contenido,
       })
       .then((response) => {
-  
-        agregarTarea(response.data); 
+        agregarTarea(response.data);
         setNuevaTarea({
-          titulo: '',
-          contenido: '',
-          fecha: '',
-          grado: ''
+          titulo: "",
+          contenido: "",
+          fecha: "",
+          grado: "",
         });
       })
       .catch((error) => {
@@ -92,7 +89,7 @@ const AgregarTarea = ({ agregarTarea }) => {
         <div>
           <label htmlFor="grado">Grado de importancia:</label>
           <Form className="mt-3">
-            {['radio'].map((type) => (
+            {["radio"].map((type) => (
               <div key={`inline-${type}`} className="mb-3">
                 <Form.Check
                   inline

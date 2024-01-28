@@ -6,7 +6,6 @@ import Layout from "./pages/Layout";
 import LayoutInicial from "./pages/LayoutInicial";
 import Login from "./pages/Login";
 import Tareas from "./pages/Tareas";
-import Chat from "./pages/Chat";
 import "react-toastify/dist/ReactToastify.css";
 import Inicio from "./pages/Inicio";
 
@@ -16,7 +15,7 @@ ReactDOM.render(
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route path="inicio" element={<Inicio />} />
-          <Route path="chat" element={<Chat />} />
+      
           <Route path="tareas" element={<Tareas />} />
         </Route>
         <Route path="/" element={<LayoutInicial />}>

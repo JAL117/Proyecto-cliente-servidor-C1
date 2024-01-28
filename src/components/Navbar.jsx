@@ -19,9 +19,7 @@ function CollapsibleExample() {
             <Nav.Link href="/tareas">
               Tareas <AiFillSnippets />
             </Nav.Link>
-            <Nav.Link href="/chat">
-              Chat <IoMdChatboxes />
-            </Nav.Link>
+     
             <Nav.Link href="/" className="ms-5">
           Salir <IoExit/>
         </Nav.Link>
